@@ -1,0 +1,37 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% block title %}{{ other_user.username }}{% endblock %}
+
+{% block content %}
+<h4 class="mb-3">💬 {{ other_user.username }}</h4>
+
+<div class="border rounded p-3 bg-light" style="max-height: 60vh; overflow-y: auto;">
+  {% for message in thread %}
+    <div class="mb-3 {% if message.sender == request.user %}text-end{% else %}text-start{% endif %}">
+      <div class="d-inline-block p-2 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-white border{% endif %}">
+        <div>{{ message.content|linebreaks }}</div>
+        <small class="d-block text-muted mt-1">{{ message.timestamp|date:"Y-m-d H:i" }}</small>
+        {% if message.item %}
+          <small class="d-block text-info">{% trans "Regarding item:" %} {{ message.item.title }}</small>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">{% trans "No messages yet." %}</p>
+  {% endfor %}
+</div>
+
+<form method="post" class="mt-4">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="content" class="form-label">{% trans "Send a message" %}</label>
+    <textarea name="content" class="form-control" rows="3" required></textarea>
+  </div>
+  <input type="hidden" name="receiver_id" value="{{ other_user.id }}">
+  {% if related_item %}
+    <input type="hidden" name="item_id" value="{{ related_item.id }}">
+  {% endif %}
+  <button type="submit" class="btn btn-primary">{% trans "Send" %}</button>
+</form>
+
+{% endblock %}

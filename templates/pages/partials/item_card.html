@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<div class="col-md-4 mb-4">
+  <div class="card h-100 border rounded p-2 position-relative">
+
+    {% if item.images.all %}
+      <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}">
+    {% endif %}
+
+    <div class="card-body">
+      <h5 class="card-title">{{ item.title }}</h5>
+
+      <p class="card-text">
+        {{ item.description|truncatechars:100 }}
+      </p>
+
+      <p class="fw-bold">${{ item.price }}</p>
+
+      {% if show_edit_delete %}
+        <button class="btn btn-warning w-100 mb-2"
+                onclick="openEditModal('{{ item.id }}', '{{ item.title }}',
+                                       `{{ item.description }}`, '{{ item.price }}')">
+          {% trans "Edit" %}
+        </button>
+        <button class="btn btn-danger w-100"
+                onclick="openDeleteModal('{{ item.id }}')">
+          {% trans "Delete" %}
+        </button>
+      {% endif %}
+    </div>
+
+  </div>
+</div>

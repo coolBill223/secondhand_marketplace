@@ -1,0 +1,36 @@
+{% load i18n %} 
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editItemForm">
+      {% csrf_token %}
+      <input type="hidden" name="item_id" id="modalItemId">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">{% trans "Edit Item" %}</h5></div>
+        <div class="modal-body">
+          <div class="mb-3"><label>{% trans "Title" %}</label><input class="form-control" name="title" id="modalTitle" required></div>
+          <div class="mb-3"><label>{% trans "Description" %}</label><textarea class="form-control" name="description" id="modalDescription" required></textarea></div>
+          <div class="mb-3"><label>{% trans "Price" %}</label><input class="form-control" name="price" id="modalPrice" required></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" id="deleteItemForm">{% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">{% trans "Confirm Deletion" %}</h5></div>
+        <div class="modal-body"><p>{% trans "Are you sure you want to delete this item?" %}</p></div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">{% trans "Yes, delete" %}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Messages" %}{% endblock %}
+
+{% block content %}
+<h4 class="mb-3">{% trans "Messages" %}</h4>
+
+<ul class="list-group">
+  {% for msg in latest_conversations %}
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          {{ msg.other_user.username }}
+          {% if msg.is_read == False and msg.receiver == request.user %}
+            <span class="badge bg-danger ms-2">{% trans "New" %}</span>
+          {% endif %}
+        </div>
+        <small class="text-muted">{{ msg.content|truncatewords:10 }}</small>
+      </div>
+      <span class="text-muted small">{{ msg.timestamp|date:"Y-m-d H:i" }}</span>
+    </li>
+  {% empty %}
+    <li class="list-group-item">{% trans "No messages yet." %}</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

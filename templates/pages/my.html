@@ -1,0 +1,94 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% block title %}{% trans "My Page" %}{% endblock %}
+
+{% block content %}
+<h4 class="mb-3">{% trans "Favorites" %}</h4>
+<div class="row">
+  {% for item in favorite_items %}
+    {% include "pages/partials/item_card.html" with item=item favorite_items=favorite_items %}
+  {% empty %}
+    <p>{% trans "You haven't favorited any items yet." %}</p>
+  {% endfor %}
+</div>
+
+
+<hr>
+<h4 class="mb-3">{% trans "Purchased Items" %}</h4>
+<div class="row">
+  {% for item in purchased_items %}
+    {% include "pages/partials/item_card.html" with item=item show_edit_delete=False %}
+  {% empty %}
+    <p>{% trans "You haven't purchased any items yet." %}</p>
+  {% endfor %}
+</div>
+
+<hr>
+<h4 class="mb-3">{% trans "Sold Items" %}</h4>
+<div class="row">
+  {% for item in sold_items %}
+    {% include "pages/partials/item_card.html" with item=item show_edit_delete=False %}
+  {% empty %}
+    <p>{% trans "You haven't sold any items yet." %}</p>
+  {% endfor %}
+</div>
+
+<hr>
+<h4 class="mb-3">{% trans "My Listed Items" %}</h4>
+<div class="row">
+  {% for item in user_items %}
+    {% include "pages/partials/item_card.html" with item=item show_edit_delete=True %}
+  {% empty %}
+    <p>{{ _("You have not listed any items.") }}</p>
+  {% endfor %}
+</div>
+
+
+{% include "pages/partials/modals.html" %}
+
+<script>
+function openEditModal(id, title, description, price) {
+  document.getElementById("modalItemId").value = id;
+  document.getElementById("modalTitle").value = title;
+  document.getElementById("modalDescription").value = description;
+  document.getElementById("modalPrice").value = price;
+  new bootstrap.Modal(document.getElementById('editItemModal')).show();
+}
+
+document.getElementById('editItemForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const itemId = formData.get("item_id");
+
+  fetch(`/item/${itemId}/edit/`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  }).then(res => {
+    if (res.ok) location.reload();
+    else alert("{% trans 'Failed to update item.' %}");
+  });
+});
+
+function openDeleteModal(itemId) {
+  const form = document.getElementById('deleteItemForm');
+  form.action = `/item/${itemId}/delete/`;
+  new bootstrap.Modal(document.getElementById('deleteItemModal')).show();
+}
+
+function toggleFavorite(itemId) {
+  fetch(`/item/${itemId}/toggle_favorite/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  }).then(response => {
+    if (response.ok) location.reload();
+    else alert("{% trans 'Failed to update favorite status.' %}");
+  });
+}
+</script>
+{% endblock %}

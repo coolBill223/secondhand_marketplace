@@ -1,0 +1,12 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Register" %}{% endblock %}
+{% block content %}
+<h4>{% trans "Create a New Account" %}</h4>
+<form method="post" class="border p-4 rounded bg-light">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">{% trans "Register" %}</button>
+</form>
+<p class="mt-3">{% trans "Already have an account?" %} <a href="{% url 'login' %}">{% trans "Login here" %}</a></p>
+{% endblock %}

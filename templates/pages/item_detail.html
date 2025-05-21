@@ -1,0 +1,26 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+{% block title %}{{ item.title }}{% endblock %}
+{% block content %}
+<div class="card p-3">
+    {% if item.images.all %}
+        <div style="max-height: 400px; overflow-x: auto; white-space: nowrap;">
+            {% for image in item.images.all %}
+                <img src="{{ image.image.url }}" alt="{{ item.title }}" style="max-height: 400px; max-width: 100%; display: inline-block; margin-right: 10px;">
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="card-body">
+        <h3 class="card-title">
+            {{ item.title }}
+            {% if item.is_featured %}
+                <span class="badge bg-warning text-dark">★ {% trans "Featured" %}</span>
+            {% endif %}
+        </h3>
+        <p class="card-text">{{ item.description }}</p>
+        <p><strong>${{ item.price }}</strong></p>
+        <p><small>{% trans "Posted on" %} {{ item.seller.username }} | {{ item.created_at|date:"Y-m-d H:i" }}</small></p>
+        <a href="/" class="btn btn-secondary">{% trans "Back to list" %}</a>
+    </div>
+</div>
+{% endblock %}
