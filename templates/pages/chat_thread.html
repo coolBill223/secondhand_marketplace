@@ -13,6 +13,14 @@
         <small class="d-block text-muted mt-1">{{ message.timestamp|date:"Y-m-d H:i" }}</small>
         {% if message.item %}
           <small class="d-block text-info">{% trans "Regarding item:" %} {{ message.item.title }}</small>
+
+          {% if request.user == message.receiver and not message.item.is_sold %}
+            <form method="post" action="{% url 'confirm_deal' message.item.id message.sender.username %}" class="mt-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success btn-sm">✅ {% trans "Confirm Deal" %}</button>
+            </form>
+          {% endif %}
+
         {% endif %}
       </div>
     </div>

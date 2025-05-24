@@ -36,6 +36,7 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    item = models.ForeignKey(Item, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"From {self.sender.username} to {self.receiver.username}"

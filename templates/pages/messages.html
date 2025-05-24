@@ -7,7 +7,7 @@
 
 <ul class="list-group">
   {% for msg in latest_conversations %}
-    <li class="list-group-item d-flex justify-content-between align-items-start">
+    <a href="{% url 'chat_thread' msg.other_user.username %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start text-decoration-none">
       <div class="ms-2 me-auto">
         <div class="fw-bold">
           {{ msg.other_user.username }}
@@ -18,7 +18,7 @@
         <small class="text-muted">{{ msg.content|truncatewords:10 }}</small>
       </div>
       <span class="text-muted small">{{ msg.timestamp|date:"Y-m-d H:i" }}</span>
-    </li>
+    </a>
   {% empty %}
     <li class="list-group-item">{% trans "No messages yet." %}</li>
   {% endfor %}

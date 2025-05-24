@@ -17,4 +17,7 @@ urlpatterns = [
     path('item/<int:item_id>/edit/', views.edit_item, name='edit_item'),
     path('item/<int:item_id>/delete/', views.delete_item, name='delete_item'),
     path('item/<int:item_id>/toggle_favorite/', views.toggle_favorite, name='toggle_favorite'),
+    path('item/<int:item_id>/purchase/', views.purchase_item, name='purchase_item'),
+    path('item/<int:item_id>/send_request/', views.send_purchase_request, name='send_purchase_request'),
+    path('item/<int:item_id>/confirm_deal/<str:buyer_username>/', views.confirm_deal, name='confirm_deal'),
 ] 

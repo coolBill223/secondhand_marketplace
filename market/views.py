@@ -6,12 +6,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.utils import translation
 from django.conf import settings
-from django.db.models import Q, Max, F
+from django.db.models import Q, Max, F, Case, When
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 def home(request):
-    items = Item.objects.all().order_by('-created_at')
+    items = Item.objects.filter(is_sold=False).order_by('-created_at')
     return render(request, 'pages/home.html', {'items': items})
 
 @login_required
@@ -70,33 +70,45 @@ def my(request):
     user_items = Item.objects.filter(seller=user, is_sold=False)
     sold_orders = Order.objects.filter(item__seller=user)
     purchased_orders = Order.objects.filter(buyer=user)
+
+    sold_items = [order.item for order in sold_orders]
+    purchased_items = [order.item for order in purchased_orders]
+
     favorite_items = user.favorites.all()
+
     return render(request, 'pages/my.html', {
         'user_items': user_items,
-        'sold_orders': sold_orders,
-        'purchased_orders': purchased_orders,
+        'sold_items': sold_items,
+        'purchased_items': purchased_items,
         'favorite_items': favorite_items,
     })
 
+
+
+from django.db.models import Max, Subquery, OuterRef
 
 @login_required
 def messages_center(request):
     user = request.user
 
-    latest_by_pair = (
+    all_threads = (
         Message.objects
         .filter(Q(sender=user) | Q(receiver=user))
-        .values('sender', 'receiver')
-        .annotate(latest_time=Max('timestamp'))
-        .values('latest_time')
+        .annotate(
+            partner=Case(
+                When(sender=user, then=F('receiver')),
+                default=F('sender'),
+                )
+        )
     )
 
-    latest_conversations = (
-        Message.objects
-        .filter(Q(sender=user) | Q(receiver=user))
-        .filter(timestamp__in=latest_by_pair)
-        .order_by('-timestamp')
+    latest_message_ids = (
+        all_threads.values('partner')
+        .annotate(latest_id=Max('id'))
+        .values_list('latest_id', flat=True)
     )
+
+    latest_conversations = Message.objects.filter(id__in=latest_message_ids).order_by('-timestamp')
 
     for msg in latest_conversations:
         msg.other_user = msg.receiver if msg.sender == user else msg.sender
@@ -104,6 +116,7 @@ def messages_center(request):
     return render(request, 'pages/messages.html', {
         'latest_conversations': latest_conversations
     })
+
 
 @login_required
 def chat_thread(request, username):
@@ -161,13 +174,65 @@ def delete_item(request, item_id):
 
 @login_required
 @require_POST
+def purchase_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    if item.is_sold:
+        return JsonResponse({"error": "Item already sold."}, status=400)
+    if item.seller == request.user:
+        return JsonResponse({"error": "You cannot buy your own item."}, status=403)
+
+    Order.objects.create(buyer=request.user, item=item)
+    item.is_sold = True
+    item.save()
+    return redirect('my')
+
+
+@login_required
+@require_POST
 def toggle_favorite(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     if request.user in item.favorited_by.all():
         item.favorited_by.remove(request.user)
     else:
         item.favorited_by.add(request.user)
-    return JsonResponse({'success': True})
+    return redirect('item_detail', item_id=item.id)  
+
+@login_required
+@require_POST
+def send_purchase_request(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    if item.is_sold or item.seller == request.user:
+        return JsonResponse({"error": "Invalid request"}, status=400)
+    
+    Message.objects.create(
+        sender=request.user,
+        receiver=item.seller,
+        content=f"我想购买你的商品《{item.title}》",
+        item=item
+    )
+    return redirect('chat_thread', username=item.seller.username)
+
+@login_required
+@require_POST
+def confirm_deal(request, item_id, buyer_username):
+    item = get_object_or_404(Item, id=item_id, seller=request.user)
+    buyer = get_object_or_404(User, username=buyer_username)
+
+    if item.is_sold:
+        return JsonResponse({"error": "Item already sold."}, status=400)
+
+    Order.objects.create(buyer=buyer, item=item)
+    item.is_sold = True
+    item.save()
+
+    Message.objects.create(
+        sender=request.user,
+        receiver=buyer,
+        content=f"商品《{item.title}》交易已确认，请注意查收。",
+        item=item
+    )
+    return redirect('chat_thread', username=buyer.username)
+
 
 
 
