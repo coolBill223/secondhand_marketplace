@@ -37,6 +37,11 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     item = models.ForeignKey(Item, null=True, blank=True, on_delete=models.SET_NULL)
+    decision = models.CharField(
+    max_length=10,
+    choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')],
+    default='pending'
+    )
 
     def __str__(self):
         return f"From {self.sender.username} to {self.receiver.username}"

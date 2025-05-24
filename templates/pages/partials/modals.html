@@ -1,7 +1,7 @@
 {% load i18n %} 
 <div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="editItemForm">
+    <form id="editItemForm" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="item_id" id="modalItemId">
       <div class="modal-content">
@@ -10,6 +10,16 @@
           <div class="mb-3"><label>{% trans "Title" %}</label><input class="form-control" name="title" id="modalTitle" required></div>
           <div class="mb-3"><label>{% trans "Description" %}</label><textarea class="form-control" name="description" id="modalDescription" required></textarea></div>
           <div class="mb-3"><label>{% trans "Price" %}</label><input class="form-control" name="price" id="modalPrice" required></div>
+
+          <div class="mb-3">
+            <label>{% trans "Upload New Images" %}</label>
+            <input type="file" name="images" class="form-control" accept="image/*" multiple>
+          </div>
+
+          <div class="mb-3">
+            <label>{% trans "Current Images" %}</label>
+            <div id="currentImages" class="d-flex flex-wrap gap-2"></div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
@@ -34,3 +44,33 @@
     </form>
   </div>
 </div>
+
+<script>
+function addExistingImage(id, url) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'position-relative';
+
+  const img = document.createElement('img');
+  img.src = url;
+  img.className = 'img-thumbnail';
+  img.style.maxWidth = '100px';
+  img.style.maxHeight = '100px';
+
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
+  delBtn.textContent = '×';
+  delBtn.onclick = function() {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'image_ids_to_delete[]';
+    input.value = id;
+    document.getElementById('editItemForm').appendChild(input);
+    wrapper.remove();
+  };
+
+  wrapper.appendChild(img);
+  wrapper.appendChild(delBtn);
+  document.getElementById('currentImages').appendChild(wrapper);
+}
+</script>

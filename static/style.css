@@ -116,3 +116,31 @@ footer {
     width: auto;
     object-fit: contain;
 }
+
+.chat-container {
+  background-color: #e6f4ea;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.chat-bubble {
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  max-width: 80%;
+}
+
+.chat-bubble-sent {
+  background-color: #c6efce;
+  color: black;
+  text-align: right;
+  align-self: flex-end;
+}
+
+.chat-bubble-received {
+  background-color: white;
+  color: black;
+  text-align: left;
+  align-self: flex-start;
+}

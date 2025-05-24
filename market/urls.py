@@ -20,4 +20,6 @@ urlpatterns = [
     path('item/<int:item_id>/purchase/', views.purchase_item, name='purchase_item'),
     path('item/<int:item_id>/send_request/', views.send_purchase_request, name='send_purchase_request'),
     path('item/<int:item_id>/confirm_deal/<str:buyer_username>/', views.confirm_deal, name='confirm_deal'),
+    path('item/<int:item_id>/reject_deal/<str:buyer_username>/', views.reject_deal, name='reject_deal'),
+    path('api/item/<int:item_id>/images/', views.get_item_images, name='get_item_images'),
 ] 

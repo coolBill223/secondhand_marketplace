@@ -160,9 +160,21 @@ def chat_thread(request, username):
 def edit_item(request, item_id):
     item = get_object_or_404(Item, id=item_id, seller=request.user)
     form = ItemForm(request.POST, request.FILES, instance=item)
+
     if form.is_valid():
         form.save()
+
+        delete_ids = request.POST.getlist("image_ids_to_delete[]")
+        if delete_ids:
+            ItemImage.objects.filter(id__in=delete_ids, item=item).delete()
+
+        files = request.FILES.getlist("images")
+        for file in files:
+            if file.content_type.startswith("image/"):
+                ItemImage.objects.create(item=item, image=file)
+
         return JsonResponse({"success": True})
+    
     return JsonResponse({"error": "Invalid data"}, status=400)
 
 @login_required
@@ -221,6 +233,11 @@ def confirm_deal(request, item_id, buyer_username):
     if item.is_sold:
         return JsonResponse({"error": "Item already sold."}, status=400)
 
+    message = Message.objects.filter(sender=buyer, receiver=request.user, item=item, decision='pending').last()
+    if message:
+        message.decision = 'accepted'
+        message.save()
+    
     Order.objects.create(buyer=buyer, item=item)
     item.is_sold = True
     item.save()
@@ -233,6 +250,33 @@ def confirm_deal(request, item_id, buyer_username):
     )
     return redirect('chat_thread', username=buyer.username)
 
+@login_required
+@require_POST
+def reject_deal(request, item_id, buyer_username):
+    item = get_object_or_404(Item, id=item_id, seller=request.user)
+    buyer = get_object_or_404(User, username=buyer_username)
 
+    if item.is_sold:
+        return JsonResponse({"error": "Item already sold."}, status=400)
 
+    message = Message.objects.filter(sender=buyer, receiver=request.user, item=item, decision='pending').last()
+    if message:
+        message.decision = 'rejected'
+        message.save()
+    
+    Message.objects.create(
+        sender=request.user,
+        receiver=buyer,
+        content=f"很抱歉，您的购买请求《{item.title}》已被卖家拒绝。",
+        item=item
+    )
+    return redirect('chat_thread', username=buyer.username)
 
+@login_required
+def get_item_images(request, item_id):
+    item = get_object_or_404(Item, id=item_id, seller=request.user)
+    images = item.images.all()
+    data = {
+        "images": [{"id": img.id, "url": img.image.url} for img in images]
+    }
+    return JsonResponse(data)

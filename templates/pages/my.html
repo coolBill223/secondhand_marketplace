@@ -52,8 +52,21 @@ function openEditModal(id, title, description, price) {
   document.getElementById("modalTitle").value = title;
   document.getElementById("modalDescription").value = description;
   document.getElementById("modalPrice").value = price;
+
+  document.getElementById("currentImages").innerHTML = "";
+
+  fetch(`/api/item/${id}/images/`)
+    .then(response => response.json())
+    .then(data => {
+      data.images.forEach(img => {
+        addExistingImage(img.id, img.url);  
+      });
+    });
+
   new bootstrap.Modal(document.getElementById('editItemModal')).show();
 }
+
+
 
 document.getElementById('editItemForm').addEventListener('submit', function(e) {
   e.preventDefault();
