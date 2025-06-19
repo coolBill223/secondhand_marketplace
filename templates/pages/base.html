@@ -26,11 +26,11 @@
                     </form>
 
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm me-2">{% trans "Login" %}</a>
-                    <a href="{% url 'register' %}" class="btn btn-primary btn-sm">{% trans "Register" %}</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary  me-2">{% trans "Login" %}</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary ">{% trans "Register" %}</a>
                 {% endif %}
                 
-                <a href="{% url 'my' %}" class="btn btn-outline-secondary btn-sm me-2">
+                <a href="{% url 'my' %}" class="btn btn-outline-secondary  me-2">
                     {% trans "My Page" %}
                 </a>
                 
@@ -39,18 +39,18 @@
                 </a>
 
 
-                <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm me-2">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary  me-2">
                     {% trans "Home" %}
                 </a>
 
 
                 <form action="{% url 'set_language' %}" method="get" class="d-inline ms-3">
                     <input type="hidden" name="lang" value="en">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">English</button>
+                    <button type="submit" class="btn  btn-outline-secondary">English</button>
                 </form>
                 <form action="{% url 'set_language' %}" method="get" class="d-inline">
                     <input type="hidden" name="lang" value="zh-hans">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">中文</button>
+                    <button type="submit" class="btn  btn-outline-secondary">中文</button>
                 </form>
             </div>
         </nav>

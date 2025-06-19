@@ -144,3 +144,35 @@ footer {
   text-align: left;
   align-self: flex-start;
 }
+
+.card .btn {
+  min-width: 150px;
+}
+
+nav .btn {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border-radius: 12px;
+    min-width: 80px;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  opacity: 1 !important;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+  left: -40px;  
+}
+
+.carousel-control-next {
+  right: -40px;  
+}
+
+.item-info {
+    padding-left: 30px;
+}
+
+

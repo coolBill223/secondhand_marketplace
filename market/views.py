@@ -62,7 +62,8 @@ def set_language(request):
 
 def item_detail(request, item_id):
     item = get_object_or_404(Item, id=item_id)
-    return render(request, 'pages/item_detail.html', {'item': item})
+    images = list(item.images.all())
+    return render(request, 'pages/item_detail.html', {'item': item, 'images': images})
 
 @login_required
 def my(request):

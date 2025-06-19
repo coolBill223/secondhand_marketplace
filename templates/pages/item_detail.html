@@ -1,51 +1,79 @@
 {% extends "pages/base.html" %}
 {% load i18n %}
 {% block title %}{{ item.title }}{% endblock %}
+
 {% block content %}
-<div class="card p-3">
-    {% if item.images.all %}
-        <div style="max-height: 400px; overflow-x: auto; white-space: nowrap;">
-            {% for image in item.images.all %}
-                <img src="{{ image.image.url }}" alt="{{ item.title }}" style="max-height: 400px; max-width: 100%; display: inline-block; margin-right: 10px;">
-            {% endfor %}
+
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'home' %}" class="btn btn-outline-secondary">{% trans "Back to Home" %}</a>
+</div>
+
+<div class="row g-4 align-items-start">
+  <!-- Left: Title + Carousel -->
+  <div class="col-md-5">
+    <h3 class="fw-bold mb-3">{{ item.title }}</h3>
+
+    {% if images %}
+  
+          <div id="itemCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
+            <div class="carousel-inner rounded shadow-sm">
+              {% for image in images %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ image.image.url }}" class="d-block w-100" style="max-height: 400px; object-fit: contain;" alt="Item image">
+                </div>
+              {% endfor %}
         </div>
-    {% endif %}
-    <div class="card-body">
-        <h3 class="card-title">
-            {{ item.title }}
-            {% if item.is_featured %}
-                <span class="badge bg-warning text-dark">★ {% trans "Featured" %}</span>
-            {% endif %}
-        </h3>
-        <p class="card-text">{{ item.description }}</p>
-        <p><strong>${{ item.price }}</strong></p>
-        <p><small>{% trans "Posted on" %} {{ item.seller.username }} | {{ item.created_at|date:"Y-m-d H:i" }}</small></p>
 
-        <a href="/" class="btn btn-secondary">{% trans "Back to list" %}</a>
-
-        {% if user.is_authenticated %}
-            <form method="post" action="{% url 'toggle_favorite' item.id %}" class="d-inline">
-                {% csrf_token %}
-                {% if user in item.favorited_by.all %}
-                    <button class="btn btn-warning" type="submit">{% trans "Unfavorite" %} ⭐</button>
-                {% else %}
-                    <button class="btn btn-outline-warning" type="submit">{% trans "Favorite" %} ⭐</button>
-                {% endif %}
-            </form>
-
-            {% if user != item.seller %}
-                {% if not item.is_sold %}
-                    <form method="post" action="{% url 'send_purchase_request' item.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-success" type="submit">{% trans "Buy Now" %} 🛒</button>
-                    </form>
-                {% else %}
-                    <span class="text-danger ms-2">{% trans "This item has been sold." %}</span>
-                {% endif %}
-            {% else %}
-                <span class="text-muted ms-2">{% trans "You cannot buy your own item." %}</span>
-            {% endif %}
+        {% if images|length > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
         {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Details -->
+  <div class="col-md-7 item-info">
+    <p class="text-muted small">{% trans "Posted by" %} {{ item.seller.username }} · {{ item.created_at|date:"Y-m-d H:i" }}</p>
+    <p><strong>${{ item.price }}</strong></p>
+    <p><strong>{% trans "Condition" %}:</strong> {{ item.get_condition_display }}</p>
+    <p><strong>{% trans "Category" %}:</strong> {{ item.get_category_display }}</p>
+    <p><strong>{% trans "Pickup" %}:</strong> {{ item.pickup|yesno:"Yes,No" }}</p>
+    <p><strong>{% trans "Delivery" %}:</strong> {{ item.delivery|yesno:"Yes,No" }}</p>
+    <p class="text-muted">{{ item.description }}</p>
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_favorite' item.id %}" class="d-inline">
+          {% csrf_token %}
+          {% if user in item.favorited_by.all %}
+            <button class="btn btn-warning" type="submit">{% trans "Unfavorite" %} ⭐</button>
+          {% else %}
+            <button class="btn btn-outline-warning" type="submit">{% trans "Favorite" %} ⭐</button>
+          {% endif %}
+        </form>
+
+        {% if user != item.seller %}
+          {% if not item.is_sold %}
+            <form method="post" action="{% url 'send_purchase_request' item.id %}">
+              {% csrf_token %}
+              <button class="btn btn-success" type="submit">{% trans "Buy Now" %} 🛒</button>
+            </form>
+          {% else %}
+            <span class="text-danger">{% trans "This item has been sold." %}</span>
+          {% endif %}
+        {% else %}
+          <span class="text-muted">{% trans "You cannot buy your own item." %}</span>
+        {% endif %}
+      {% endif %}
     </div>
+  </div>
 </div>
 {% endblock %}
